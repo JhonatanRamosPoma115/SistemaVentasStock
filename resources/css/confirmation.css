@@ -1,0 +1,25 @@
+.action-confirmation { width: min(440px, calc(100% - 2rem)); max-height: calc(100vh - 2rem); margin: auto; border: 1px solid #c8973a60; border-radius: 16px; padding: 1.5rem; color: #241e18; background: #fdfaf5; box-shadow: 0 20px 80px #0004; }
+.action-confirmation::backdrop { background: #1a141099; }
+.confirmation-eyebrow { color: #775524; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+.action-confirmation h2 { font-family: inherit; font-size: 1.3rem; font-weight: 600; margin: .6rem 0 .8rem; }
+.action-confirmation p { color: #655649; line-height: 1.7; margin: 0; }
+.confirmation-buttons { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .75rem; margin-top: 1.4rem; }
+.confirmation-buttons button { min-height: 44px; padding: .6rem 1rem; border-radius: 8px; font: inherit; cursor: pointer; }
+.confirmation-cancel { border: 1px solid #bfb09c; color: #34291f; background: transparent; }
+.confirmation-accept { border: 1px solid #34291f; color: #fffaf1; background: #34291f; }
+.action-confirmation button:focus-visible { outline: 3px solid #a77323; outline-offset: 3px; }
+@media print { .action-confirmation { display: none !important; } }
+
+.payment-panel { padding: 1.2rem; margin: 1.25rem 0; border: 1px solid #c8973a50; border-radius: 12px; background: #f5f0e8; color: #34291f; line-height: 1.6; }
+.payment-panel h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; }
+.payment-amounts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; margin: 0 0 1rem; }
+.payment-amounts dt { font-size: .85rem; font-weight: 400; }
+.payment-amounts dd { margin: .25rem 0 0; font-weight: 600; }
+.payment-form { display: grid; gap: .85rem; margin: 1rem 0; }
+.payment-form label { display: grid; gap: .4rem; }
+.payment-form input:not([type="checkbox"]), .payment-form select { width: 100%; min-height: 44px; padding: .6rem; border: 1px solid #beae96; border-radius: 6px; background: white; }
+.payment-form .payment-check { display: flex; align-items: flex-start; gap: .6rem; font-size: .9rem; }
+.payment-security { font-size: .85rem; margin: 1rem 0 0; color: #655649; }
+.payment-panel summary { cursor: pointer; margin-top: .75rem; font-weight: 600; }
+.payment-print { display: none; }
+@media print { .payment-print { display: block; margin: 1rem 0; font-size: 10pt; line-height: 1.5; } }

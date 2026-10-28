@@ -1,0 +1,282 @@
+@import './home.css';
+@import './catalog.css';
+@import './storefront.css';
+@import './confirmation.css';
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --cream:    #F5F0E8;
+        --gold:     #C8973A;
+        --gold-lt:  #E6BA6A;
+        --ink:      #1A1410;
+        --ink-soft: #3D3028;
+        --muted:    #8A7968;
+        --white:    #FDFAF5;
+        --shadow:   0 4px 24px rgba(26,20,16,.10);
+        --radius:   4px;
+        --ff-head:  'Cormorant Garamond', Georgia, serif;
+        --ff-body:  'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+        background: var(--cream);
+        color: var(--ink);
+        font-family: var(--ff-body);
+        font-size: 15px;
+        line-height: 1.65;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@layer components {
+    /* NAV */
+    nav {
+        background: var(--white);
+        border-bottom: 1px solid rgba(200,151,58,.20);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 12px rgba(26,20,16,.06);
+    }
+    .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 68px;
+    }
+    .nav-brand {
+        font-family: var(--ff-head);
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--ink);
+        text-decoration: none;
+        letter-spacing: .02em;
+    }
+    .nav-brand span { color: var(--gold); }
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+        align-items: center;
+    }
+    .nav-links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: .88rem;
+        font-weight: 500;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cart {
+        background: var(--ink);
+        color: var(--cream);
+        border: none;
+        cursor: pointer;
+        padding: .5rem 1.25rem;
+        border-radius: var(--radius);
+        font-family: var(--ff-body);
+        font-size: .85rem;
+        font-weight: 500;
+        letter-spacing: .04em;
+        text-decoration: none;
+        transition: background .2s;
+        position: relative;
+    }
+    .nav-cart:hover { background: var(--gold); color: var(--ink); }
+    .cart-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: var(--gold);
+        color: var(--ink);
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: .7rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .nav-burger {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    .nav-burger span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: var(--ink);
+        margin: 5px 0;
+        transition: .3s;
+    }
+
+    /* FLASH */
+    .flash {
+        padding: .85rem 1.5rem;
+        font-size: .88rem;
+        font-weight: 500;
+        text-align: center;
+    }
+    .flash.success { background: #d4edda; color: #155724; }
+    .flash.error   { background: #f8d7da; color: #721c24; }
+
+    /* MAIN */
+    main { flex: 1; }
+
+    /* FOOTER */
+    .site-footer {
+        background: var(--ink);
+        color: #c9bfb1;
+        padding: 2.25rem 1.5rem 1.25rem;
+        margin-top: 2.5rem;
+    }
+    .footer-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .footer-brand-name {
+        font-family: var(--ff-head);
+        font-size: 1.5rem;
+        color: var(--white);
+        margin-bottom: .5rem;
+    }
+    .footer-brand-name span { color: var(--gold-lt); }
+    .footer-tagline { font-style: italic; font-size: .88rem; }
+    .footer-location { margin-top: .5rem; font-size: .82rem; }
+    .footer-verse {
+        margin-top: .75rem;
+        font-family: var(--ff-head);
+        font-style: italic;
+        font-size: .9rem;
+        color: var(--gold-lt);
+        line-height: 1.5;
+    }
+    .footer-col h4 {
+        color: var(--white);
+        font-size: .8rem;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: .6rem;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: .15rem; }
+    .footer-col a {
+        color: #d4cabc;
+        text-decoration: none;
+        font-size: .88rem;
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        transition: color .2s;
+    }
+    .footer-col a:hover { color: var(--gold-lt); }
+    .footer-copy {
+        max-width: 1200px;
+        margin: 1rem auto 0;
+        font-size: .78rem;
+        text-align: center;
+        color: #bcb0a0;
+    }
+
+    /* BOTONES */
+    .btn {
+        display: inline-block;
+        padding: .7rem 1.8rem;
+        border-radius: var(--radius);
+        font-family: var(--ff-body);
+        font-weight: 500;
+        font-size: .88rem;
+        letter-spacing: .04em;
+        cursor: pointer;
+        text-decoration: none;
+        border: 2px solid transparent;
+        transition: all .25s;
+    }
+    .btn-primary {
+        background: var(--ink);
+        color: var(--cream);
+        border-color: var(--ink);
+    }
+    .btn-primary:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+    .btn-outline {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--ink);
+    }
+    .btn-outline:hover { background: var(--ink); color: var(--cream); }
+    .btn-gold {
+        background: var(--gold);
+        color: var(--ink);
+        border-color: var(--gold);
+    }
+    .btn-gold:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+    .section-label {
+        font-size: .75rem;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-weight: 500;
+        display: block;
+        margin-bottom: .6rem;
+    }
+    .section-title {
+        font-family: var(--ff-head);
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 600;
+        line-height: 1.15;
+        color: var(--ink);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 68px;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(200,151,58,.2);
+            gap: 1rem;
+        }
+        .nav-links.open { display: flex; }
+        .nav-burger { display: block; }
+        .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+    }
+}
+
+/* Impresión del comprobante */
+@media print {
+    .receipt-page { page: receipt; background: white !important; margin: 0 !important; }
+    .receipt-page nav, .receipt-page footer, .receipt-page .no-print { display: none !important; }
+    .receipt-page .comprobante-box { box-shadow: none !important; }
+    .receipt-page main { padding: 0 !important; }
+    .receipt-page .receipt-shell { margin: 0 auto !important; padding: 0 !important; }
+    @page receipt { margin: 1cm; size: A4; }
+}
+

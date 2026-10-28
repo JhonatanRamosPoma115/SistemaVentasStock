@@ -30,4 +30,9 @@ class User extends Model implements AuthenticatableContract
         'contraseña',
         'remember_token',
     ];
+
+    public function getAuthPassword(): string
+    {
+        return (string) $this->contraseña;
+    }
 }

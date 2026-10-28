@@ -11,10 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+    if ($proxies = env('TRUSTED_PROXIES')) {
+        $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+    }
     $middleware->alias([
         'esAdmin' => \App\Http\Middleware\EsAdmin::class,
     ]);
 })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->dontFlash(['contraseña', 'contraseña_confirmation']);
     })->create();

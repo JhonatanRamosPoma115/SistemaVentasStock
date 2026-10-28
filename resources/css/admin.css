@@ -1,0 +1,87 @@
+@import './confirmation.css';
+body { background-color: #f4f6f9; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+.sidebar { background: #241e18; color: white; min-height: 100vh; width: 250px; position: sticky; top: 0; display: flex; flex-direction: column; flex-shrink: 0; height: 100vh; overflow-y: auto; }
+.sidebar .nav-link { color: #d3c9bd; padding: 12px 20px; font-size: .95rem; border-radius: 8px; transition: all .2s; }
+.sidebar .nav-link:hover, .sidebar .nav-link.active { background: #493923; color: #fff; }
+.sidebar .nav-link i { width: 22px; }
+.topbar { background: #34291f; color: white; gap: 1rem; flex-wrap: wrap; }
+.card { border: none; border-radius: 14px; box-shadow: 0 4px 18px #241e180a; }
+.table th { background: #34291f; color: white; font-size: .8rem; letter-spacing: .03em; padding: 1rem; white-space: nowrap; }
+.table td { padding: 1rem; vertical-align: middle; }
+.admin-main { min-width: 0; }
+.badge { padding: .5em .75em; border-radius: 30px; }
+.table-responsive { border-radius: 14px; }
+.admin-filters { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 1rem; padding: 1.25rem; background: white; border-radius: 14px; margin-bottom: 1.5rem; }
+.admin-filters > div { flex: 1 1 160px; }
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; margin: 1.5rem 0; font-size: .9rem; }
+.pager a { color: #34291f; background: white; border: 1px solid #d3c9bd; border-radius: 8px; padding: .65rem 1rem; text-decoration: none; }
+.pager-disabled { color: #6c757d; opacity: .65; }
+.admin-menu { display: none; }
+.order-history { background: #f5f0e8; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+.order-history summary { cursor: pointer; font-weight: 600; }
+.order-history li { margin: .5rem 0; }
+@media (max-width: 900px) {
+    .admin-shell { flex-direction: column; }
+    .sidebar { display: none; width: 100%; height: auto; min-height: 0; position: static; }
+    .sidebar.is-open { display: flex; }
+    .admin-menu { display: block; }
+    .admin-main > .p-4 { padding: 1rem !important; }
+    .topbar span { display: none; }
+}
+@media print {
+    .sidebar, .topbar, .no-print, .pager, .admin-menu { display: none !important; }
+    body { background: white !important; }
+    .card { box-shadow: none !important; }
+}
+
+.dashboard-task { transition: border-color .2s; border: 1px solid transparent; }
+.dashboard-task:hover { border-color: #b68a47; }
+.inventory-alert { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .85rem; border: 1px solid #e4d6bc; border-radius: 10px; background: #fcf8ee; color: #34291f; text-decoration: none; }
+.inventory-alert div { min-width: 0; }
+.inventory-alert strong, .inventory-alert div span { display: block; overflow-wrap: anywhere; }
+.inventory-alert div span { color: #706250; font-size: .85rem; margin-top: .3rem; }
+.inventory-alert:hover { border-color: #b68a47; }
+
+/* Informe semanal: impresión compacta independiente del panel web. */
+.report-print-heading { display: none; }
+.report-print-notes { margin-top: 1rem; padding-top: .75rem; border-top: 1px solid #ddd4c7; color: #6b6053; font-size: .8rem; }
+.report-print-notes p { margin: 0 0 .35rem; }
+@media print {
+    @page weekly-report { size: A4 portrait; margin: 12mm; }
+    body.weekly-report-page { page: weekly-report; margin: 0 !important; padding: 0 !important; font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #222; }
+    .weekly-report-page .admin-shell, .weekly-report-page .admin-main { display: block !important; min-height: 0 !important; height: auto !important; width: 100% !important; }
+    .weekly-report-page .admin-main > .p-4 { padding: 0 !important; }
+    .weekly-report-page .alert, .weekly-report-page .flash { display: none !important; }
+    .weekly-report { width: 100%; }
+    .weekly-report .report-print-heading { display: flex; justify-content: space-between; gap: 8mm; padding-bottom: 2mm; margin-bottom: 3mm; border-bottom: 1.5pt solid #80633c; break-inside: avoid; }
+    .report-print-heading > div:last-child { text-align: right; }
+    .report-print-heading .report-brand { font-family: Georgia, serif; font-size: 18pt; font-weight: bold; }
+    .report-print-heading strong { font-size: 11pt; }
+    .report-print-heading p { margin: 1.5mm 0 0; font-size: 8pt; color: #555; }
+    .weekly-report .report-period { font-size: 12pt; margin: 0 0 3mm !important; }
+    .weekly-report .row { margin: 0 !important; }
+    .weekly-report .row > * { padding: 0 !important; width: auto !important; max-width: none; margin: 0 !important; }
+    .weekly-report .report-metrics { display: grid !important; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-bottom: 3mm !important; break-inside: avoid; }
+    .weekly-report .card { padding: 3mm !important; border: .5pt solid #d5d0c8 !important; border-radius: 2mm; box-shadow: none !important; background: white !important; }
+    .weekly-report .report-metrics .card { height: 100%; padding: 2.5mm !important; }
+    .weekly-report .report-metrics h6 { min-height: 4mm; font-size: 7.5pt; line-height: 1.25; margin: 0 0 2mm; }
+    .weekly-report .report-metrics h3 { font-size: 14pt; font-weight: bold; margin: 0; color: #222 !important; }
+    .weekly-report .report-overview { display: grid !important; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3mm !important; }
+    .weekly-report .report-overview .h-100 { height: auto !important; }
+    .weekly-report h6 { font-size: 9pt; margin: 0 0 2mm !important; }
+    .weekly-report .table-responsive { overflow: visible !important; border-radius: 0; }
+    .weekly-report .table { width: 100%; border-collapse: collapse; margin: 0 !important; table-layout: fixed; font-size: 8pt; }
+    .weekly-report .table th, .weekly-report .table td { padding: .9mm 1.3mm !important; color: #222 !important; background: transparent !important; box-shadow: none !important; border-bottom: .5pt solid #dedad4; white-space: normal; overflow-wrap: anywhere; line-height: 1.25; }
+    .weekly-report .table thead th { font-size: 7.5pt; font-weight: bold; border-bottom: 1pt solid #8b8171; }
+    .weekly-report .table thead { display: table-header-group; }
+    .weekly-report .table tr { break-inside: avoid; }
+    .weekly-report .badge { padding: 0 !important; border-radius: 0; font-size: inherit; font-weight: normal; color: #222 !important; background: none !important; white-space: normal; }
+    .weekly-report .report-order-list th:nth-child(1) { width: 16%; }
+    .weekly-report .report-order-list th:nth-child(2) { width: 27%; }
+    .weekly-report .report-order-list th:nth-child(3) { width: 16%; }
+    .weekly-report .report-order-list th:nth-child(4) { width: 20%; }
+    .weekly-report .report-order-list th:nth-child(5) { width: 21%; }
+    .weekly-report .report-order-list td:nth-child(3) { white-space: nowrap; }
+    .weekly-report .report-print-notes { margin-top: 3mm; padding-top: 2mm; font-size: 7pt; line-height: 1.35; break-inside: avoid; }
+    .weekly-report .report-print-notes p { margin: 0 0 1.5mm; }
+}

@@ -2,9 +2,6 @@
 
 @section('title', 'Emunah & Tikvah — Poleras Cristianas en La Paz')
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
-@endpush
 
 
 
@@ -23,7 +20,7 @@
         </p>
         <div class="hero-cta">
             <a href="{{ route('shop.catalog') }}" class="btn btn-gold">Ver catálogo</a>
-            <a href="{{ route('shop.contact') }}" class="btn" style="border-color:rgba(245,240,232,.3);color:var(--cream);">Pedido personalizado</a>
+            <a href="{{ route('shop.pedido_personalizado') }}" class="btn" style="border-color:rgba(245,240,232,.3);color:var(--cream);">Pedido personalizado</a>
         </div>
     </div>
     <div class="hero-verse">"Todo lo puedo en Cristo que me fortalece." — Filipenses 4:13</div>
@@ -73,17 +70,12 @@
         @forelse($featuredProducts as $product)
             <div class="product-card">
                 <div class="product-img">
-            @if($product->imagen)
-                <img src="{{ asset('storage/' . $product->imagen) }}"
-                    alt="{{ $product->nombre_producto }}"
-                    style="width:100%;height:100%;object-fit:cover;">
-            @else
-                👕
-            @endif
+            <x-shop-image :path="$product->imagen" :alt="$product->nombre_producto" />
         </div>
             <div class="product-info">
                 <div class="product-name">{{ $product->nombre_producto }}</div>
-                <div class="product-verse">{{ $product->descripcion }}</div>
+                <div class="product-verse">{!! nl2br(e($product->descripcion)) !!}</div>
+                
                 <div class="product-footer">
                 <div class="product-price">
                     Bs. {{ number_format($product->precio, 2) }}
@@ -115,12 +107,14 @@
         <span class="section-label">✦ Hecho para ti</span>
         <h2 class="section-title">Diseña tu<br>propia polera</h2>
         <p>¿Tienes un versículo favorito o un diseño en mente? Cuéntanos y lo hacemos realidad. También fabricamos pedidos para grupos, iglesias y eventos.</p>
-        <p>Envíanos tu idea por WhatsApp o completa el formulario de contacto y te respondemos en menos de 24 horas.</p>
-        <a href="{{ route('shop.contact') }}" class="btn btn-primary">Hacer pedido personalizado</a>
+        <p>Completa el formulario de contacto y cuéntanos tu idea para que podamos orientarte.</p>
+        <a href="{{ route('shop.pedido_personalizado') }}" class="btn btn-primary">Hacer pedido personalizado</a>
     </div>
     <div class="custom-visual">
-        <div class="custom-tshirt">👕</div>
-        <div class="custom-label">"Tu versículo aquí"</div>
+        <div class="custom-tshirt">
+            <img loading="lazy" decoding="async" src="{{ asset('images/Polera.png') }}" alt="Polera">
+        </div>
+        <div class="custom-label" style="max-width: 100%; height: auto;">"Tu versículo puede ser el mensaje que inspire a otros"</div>
     </div>
 </section>
 

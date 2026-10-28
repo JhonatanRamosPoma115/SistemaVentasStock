@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: emunah-tikvah
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: DB_CONNECTION
+        value: mongodb
+      - key: DB_DSN
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: SESSION_DRIVER
+        value: file
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: SESSION_SAME_SITE
+        value: lax
+      - key: TRUSTED_PROXIES
+        value: "*"
+      - key: MEDIA_DRIVER
+        value: s3
+      - key: MEDIA_ACCESS_KEY_ID
+        sync: false
+      - key: MEDIA_SECRET_ACCESS_KEY
+        sync: false
+      - key: MEDIA_REGION
+        sync: false
+      - key: MEDIA_ENDPOINT
+        sync: false
+      - key: MEDIA_PUBLIC_BUCKET
+        value: catalogo
+      - key: MEDIA_PUBLIC_URL
+        sync: false
+      - key: MEDIA_PRIVATE_BUCKET
+        value: pedidos

@@ -1,108 +1,100 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos - Emunah & Tikvah</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
-        .sidebar { background-color: #2c3e50; color: white; min-height: 100vh; width: 240px; position: relative; }
-        .sidebar .nav-link { color: #bdc3c7; padding: 12px 20px; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #34495e; color: white; }
-        .topbar { background-color: #34495e; color: white; }
-        .table th { background-color: #34495e; color: white; }
-    </style>
-</head>
-<body>
-<div class="d-flex">
-    <!-- Sidebar -->
-    <div class="sidebar p-3">
-        <h4 class="text-center mb-1"><i class="fas fa-store"></i> Emunah & Tikvah</h4>
-        <small class="d-block text-center mb-4 text-secondary">Sistema de Ventas</small>
-        <ul class="nav flex-column">
-            <li class="nav-item"><a href="{{ route('admin.dashboard') }}" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="{{ route('admin.productos.index') }}" class="nav-link active"><i class="fas fa-box"></i> Productos</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> Clientes</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-truck"></i> Proveedores</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> Compras</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cash-register"></i> Ventas</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> Informes</a></li>
-        </ul>
-        <div style="position:absolute; bottom:20px; width:200px;">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="nav-link btn btn-link text-danger w-100 text-start">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-                </button>
-            </form>
-        </div>
-    </div>
+@extends('admin.layouts.app')
 
-    <!-- Contenido -->
-    <div class="flex-grow-1">
-        <div class="topbar p-3 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Gestión de Productos</h5>
-            <a href="{{ route('admin.productos.create') }}" class="btn btn-success">
-                <i class="fas fa-plus"></i> Nuevo Producto
-            </a>
-        </div>
+@section('title', 'Productos — Emunah & Tikvah')
+@section('page-title', 'Gestión de Productos')
 
-        <div class="p-4">
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+@section('content')
+<form method="GET" class="admin-filters"><div><label for="inventory-search" class="form-label">Buscar producto</label><input id="inventory-search" name="q" value="{{ request('q') }}" class="form-control" maxlength="100"></div><div><label for="inventory-stock" class="form-label">Stock</label><select id="inventory-stock" name="stock" class="form-select"><option value="">Todos</option><option value="bajo" @selected(request('stock') === 'bajo')>Alguna variante con stock bajo</option><option value="agotado" @selected(request('stock') === 'agotado')>Agotados</option></select></div><div><label for="inventory-archive" class="form-label">Visibilidad</label><select id="inventory-archive" name="archivo" class="form-select"><option value="">Visibles</option><option value="si" @selected(request('archivo') === 'si')>Archivados</option></select></div><button class="btn btn-primary">Filtrar</button><a href="{{ route('admin.productos.index') }}">Limpiar</a></form>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="text-muted mb-0">Listado de Productos en Inventario</h5>
+    <a href="{{ route('admin.productos.create') }}" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i> Nuevo Producto
+    </a>
+</div>
 
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Talla</th>
-                        <th>Color</th>
-                        <th>Precio</th>
-                        <th>Stock</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($productos as $producto)
-                    <tr>
-                        <td>{{ $producto->nombre_producto }}</td>
-                        <td>{{ $producto->descripcion }}</td>
-                        <td>{{ $producto->talla }}</td>
-                        <td>{{ $producto->color }}</td>
-                        <td>{{ $producto->precio }} Bs</td>
-                        <td>
-                            <span class="badge {{ $producto->stock > 5 ? 'bg-success' : 'bg-danger' }}">
-                                {{ $producto->stock }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{{ route('admin.productos.edit', $producto->id) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form method="POST" action="{{ route('admin.productos.destroy', $producto->id) }}" style="display:inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('¿Eliminar este producto?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">No hay productos registrados</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+<div class="card">
+    <div class="card-body p-0 table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Inventario por color y talla</th>
+                    <th>Precio</th>
+                    <th>Total disponible</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($productos as $producto)
+                @php
+                    $variantes = collect(\App\Services\VariantesProducto::disponibles($producto));
+                    $porColor = $variantes->groupBy(fn ($variante) => mb_strtolower(trim($variante['color'])));
+                    $totalDisponible = \App\Services\VariantesProducto::total($variantes->all());
+                @endphp
+                <tr>
+                    <td><strong>{{ $producto->nombre_producto }}</strong><div class="mt-2"><a href="{{ route('admin.inventario.index', ['producto'=>$producto->id]) }}" class="small">Ver movimientos de stock →</a></div></td>
+                    <td>
+                        <details class="cursor-pointer">
+                            <summary class="text-primary font-medium select-none" style="cursor: pointer;">
+                                Ver descripción
+                            </summary>
+                            <div class="mt-2 p-2 bg-light rounded text-secondary small">
+                                {!! nl2br(e($producto->descripcion)) !!}
+                            </div>
+                        </details>
+                    </td>
+                    <td style="min-width:260px; white-space:normal">
+                        <div class="d-grid gap-2">
+                        @forelse($porColor as $opciones)
+                            @php($stockColor = (int) $opciones->sum('stock'))
+                            <div class="border rounded p-2 bg-light">
+                                <div class="d-flex justify-content-between align-items-center gap-3">
+                                    <strong>{{ $opciones->first()['color'] }}</strong>
+                                    <span class="badge {{ $stockColor === 0 ? 'bg-secondary' : ($stockColor <= 5 ? 'bg-warning text-dark' : 'bg-success') }}">{{ $stockColor }} uds.</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 mt-2 small">
+                                    @foreach($opciones as $variante)
+                                        <span class="border rounded px-2 py-1 bg-white">Talla {{ $variante['talla'] }}: <strong>{{ $variante['stock'] }}</strong>@if((int) $variante['stock'] === 0) <span class="text-danger">· Agotada</span>@elseif((int) $variante['stock'] <= 5) <span class="text-warning-emphasis">· Stock bajo</span>@endif</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @empty
+                            <span class="text-muted">Sin variantes disponibles</span>
+                        @endforelse
+                        </div>
+                    </td>
+                    <td>Bs. {{ number_format($producto->precio, 2) }}</td>
+                    <td>
+                        <span class="badge {{ $totalDisponible > 5 ? 'bg-success' : 'bg-danger' }}">
+                            {{ $totalDisponible }} uds.
+                        </span>
+                        @if($totalDisponible !== (int) $producto->stock)
+                            <p class="small text-danger mt-2 mb-0">El total guardado no coincide con las variantes. Revisa y guarda el producto.</p>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route('admin.productos.edit', $producto->id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="POST" action="{{ route('admin.productos.destroy', $producto->id) }}" style="display:inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                data-confirm="Este producto dejará de mostrarse en la tienda. Se conservarán sus datos y los pedidos anteriores. ¿Quieres archivarlo?" title="Archivar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No hay productos registrados</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<x-pagination :paginator="$productos" />
+@endsection

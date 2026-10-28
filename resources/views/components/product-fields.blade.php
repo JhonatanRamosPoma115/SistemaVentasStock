@@ -1,0 +1,11 @@
+@props(['producto' => null])
+@if($errors->any())<div class="alert alert-danger" role="alert">@foreach($errors->all() as $error)<p class="mb-1">{{ $error }}</p>@endforeach</div>@endif
+<div class="mb-3"><label class="form-label" for="product-name">Nombre *</label><input id="product-name" class="form-control" name="nombre_producto" value="{{ old('nombre_producto', $producto?->nombre_producto) }}" required maxlength="150"></div>
+<div class="mb-3"><label class="form-label" for="product-description">Descripción</label><textarea id="product-description" class="form-control" name="descripcion" rows="3" maxlength="3000">{{ old('descripcion', $producto?->descripcion) }}</textarea></div>
+<div class="mb-3"><label class="form-label" for="product-price">Precio por prenda (Bs) *</label><input id="product-price" class="form-control" type="number" name="precio" value="{{ old('precio', $producto?->precio) }}" step="0.01" min="0.01" max="99999.99" required></div>
+<x-variant-editor :producto="$producto" />
+<div class="mb-3"><label class="form-label" for="product-composition">Composición</label><input id="product-composition" class="form-control" name="composicion" value="{{ old('composicion', $producto?->composicion) }}" maxlength="300" placeholder="Indica la composición real de la prenda"></div>
+<div class="mb-3"><label class="form-label" for="product-care">Cuidados</label><textarea id="product-care" class="form-control" name="cuidados" maxlength="1000">{{ old('cuidados', $producto?->cuidados) }}</textarea></div>
+<div class="mb-3"><label class="form-label" for="product-gallery">Galería de imágenes</label><input id="product-gallery" type="file" name="imagenes[]" class="form-control" multiple accept=".jpg,.jpeg,.png,.webp"><p class="small text-muted">Hasta 5 imágenes de 5 MB. La primera es la portada. Si editas y subes fotos, reemplazan la galería actual.</p>
+@if($producto?->imagen)<img src="{{ \App\Services\ArchivosTienda::url($producto->imagen) }}" alt="Portada actual" width="100" height="100" style="object-fit:cover">@endif</div>
+<input type="hidden" name="activo" value="0"><label class="form-check mb-4"><input class="form-check-input" type="checkbox" name="activo" value="1" @checked(old('activo', $producto?->activo ?? true))> <span>Visible en la tienda</span></label>

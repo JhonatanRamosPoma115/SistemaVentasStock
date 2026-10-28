@@ -2,6 +2,7 @@
 @import './catalog.css';
 @import './storefront.css';
 @import './confirmation.css';
+@import './responsive.css';
 
 
 @tailwind base;

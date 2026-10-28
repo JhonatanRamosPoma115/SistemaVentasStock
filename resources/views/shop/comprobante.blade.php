@@ -29,7 +29,7 @@
         <x-order-history :history="$pedido->historial ?? []" />
         <div style="margin-bottom:2rem;">
             <h3 style="font-family:var(--ff-head); font-size:1.2rem; margin-bottom:1rem;">Datos de entrega</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem; font-size:.9rem;">
+            <div class="receipt-details" style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem; font-size:.9rem;">
                 <div><span style="color:var(--muted);">Nombre:</span> {{ $pedido->nombre_cliente }}</div>
                 <div><span style="color:var(--muted);">Correo:</span> {{ $pedido->correo_cliente }}</div>
                 <div><span style="color:var(--muted);">Teléfono:</span> {{ $pedido->telefono }}</div>
@@ -86,7 +86,8 @@
         </div>
 
         {{-- Botones --}}
-        <div class="no-print" style="display:flex; gap:1rem; justify-content:center;">
+        <div class="no-print receipt-actions" style="display:flex; gap:1rem; justify-content:center;">
+            <a href="{{ route('shop.comprobante.pdf', $pedido->id) }}" class="btn btn-gold">Descargar PDF</a>
             <button onclick="window.print()" class="btn btn-outline">
                 🖨 Imprimir comprobante
             </button>

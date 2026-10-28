@@ -72,6 +72,7 @@
         </div>
     </div>
 
+    <button type="button" class="admin-backdrop" id="admin-backdrop" aria-label="Cerrar menú"></button>
     <!-- Main Content -->
     <div class="flex-grow-1 min-vh-100 d-flex flex-column admin-main">
         <nav class="topbar p-3 d-flex justify-content-between align-items-center no-print">
@@ -101,7 +102,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>document.getElementById('admin-menu').addEventListener('click', function () { const open = document.getElementById('admin-sidebar').classList.toggle('is-open'); this.setAttribute('aria-expanded', String(open)); });</script>
 <x-confirm-dialog />
 @stack('scripts')
 </body>

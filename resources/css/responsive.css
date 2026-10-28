@@ -1,0 +1,55 @@
+/* Ajustes compartidos de pantalla; las reglas de impresión permanecen independientes. */
+@media screen {
+    .hero { padding-block: 4rem 5rem; }
+    main, .nav-inner, .nav-inner .nav-links > li { min-width: 0; }
+    nav .nav-inner { max-width: 1440px; gap: 1rem; }
+    .nav-inner .nav-brand { flex-shrink: 0; line-height: 1.15; }
+    .nav-inner .nav-links { gap: clamp(.65rem, 1.3vw, 1.25rem); margin: 0; min-width: 0; }
+    .nav-inner .nav-links a, .nav-inner .nav-links button { white-space: nowrap; }
+    .nav-inner .nav-links li:has(> span) { max-width: 145px; overflow-wrap: anywhere; }
+    .nav-inner > .nav-cart { flex-shrink: 0; display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
+    .receipt-details > div { min-width: 0; overflow-wrap: anywhere; }
+    .receipt-actions { flex-wrap: wrap; }
+    .receipt-page table { table-layout: fixed; }
+    .receipt-page th:first-child { width: 55%; }
+    .receipt-page th:nth-child(2) { width: 12%; }
+    .receipt-page td:first-child { overflow-wrap: anywhere; padding-right: .6rem !important; }
+    .receipt-page td:last-child { white-space: nowrap; }
+    .receipt-page .payment-panel, .receipt-page .order-history { min-width: 0; overflow-wrap: anywhere; }
+    .payment-panel .btn { white-space: normal; text-align: center; }
+}
+@media screen and (max-width: 1279px) {
+    .nav-inner .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: .15rem; padding: .75rem 1.25rem; background: var(--white); border-bottom: 1px solid #c8973a40; max-height: calc(100dvh - 68px); overflow-y: auto; box-shadow: 0 12px 16px #1a141015; }
+    .nav-inner .nav-links.open { display: flex; }
+    .nav-inner .nav-links > li { max-width: none !important; }
+    .nav-inner .nav-links a, .nav-inner .nav-links button, .nav-inner .nav-links li > span { display: flex; align-items: center; min-height: 44px; width: 100%; padding: .45rem .75rem; border-radius: 6px; }
+    .nav-inner .nav-links a:hover { background: var(--cream); }
+    .nav-inner .nav-burger { display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; min-width: 44px; min-height: 44px; gap: 5px; }
+    .nav-inner .nav-burger span { margin: 0; }
+    .nav-inner > .nav-cart { margin-left: auto; }
+}
+@media screen and (max-width: 600px) {
+    nav .nav-inner { padding: 0 1rem; gap: .5rem; height: 64px; }
+    .nav-inner .nav-brand { font-size: clamp(1.1rem, 5.2vw, 1.5rem); letter-spacing: 0; }
+    .nav-inner > .nav-cart { min-width: 44px; min-height: 44px; padding: .5rem; font-size: 1.1rem; }
+    .nav-inner > .nav-cart .cart-label { display: none; }
+    .hero { min-height: 0; display: block; padding: 3rem 0 1.5rem; }
+    .hero-content { padding: 0 1.25rem; }
+    .hero-title { font-size: clamp(2.7rem, 12vw, 4rem); }
+    .hero-label { font-size: .65rem; letter-spacing: .08em; }
+    .hero-sub { font-size: 1rem; margin: 1.25rem 0 1.5rem; }
+    .hero-cta { gap: .75rem; }
+    .hero-cta .btn { width: 100%; padding: .8rem 1rem; }
+    .hero-verse { position: relative; inset: auto; margin: 1.5rem 1.25rem 0; font-size: .95rem; }
+    .features, .featured, .custom-section { padding-left: 1.25rem; padding-right: 1.25rem; margin-top: 2.5rem; margin-bottom: 2.5rem; }
+    .receipt-page .receipt-shell { margin: 1.25rem auto !important; padding: 0 .75rem !important; width: 100%; }
+    .receipt-page .comprobante-box { padding: 1.25rem !important; }
+    .receipt-page .receipt-details { grid-template-columns: minmax(0, 1fr) !important; gap: .65rem !important; }
+    .receipt-page .receipt-actions { flex-direction: column; gap: .65rem !important; }
+    .receipt-actions .btn { width: 100%; padding: .75rem; }
+    .receipt-page .payment-panel { padding: 1rem; }
+    .receipt-page .payment-panel .btn { width: 100%; font-size: .85rem; padding: .75rem; }
+    .payment-amounts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    .payment-amounts dd { white-space: nowrap; font-size: .95rem; }
+    input, select, textarea { max-width: 100%; font-size: max(16px, 1em); }
+}

@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/archivos/pedidos/{path}',[\App\Http\Controllers\ArchivoPedidoController::class,'show'])->where('path','.*')->name('shop.archivo_pedido');
     Route::get('/checkout', [PedidoController::class, 'checkout'])->name('shop.checkout');
     Route::post('/checkout/confirmar', [PedidoController::class, 'confirmar'])->middleware('throttle:5,1')->name('shop.checkout.confirmar');
+    Route::get('/comprobante/{id}/pdf', [PedidoController::class, 'descargarComprobante'])->name('shop.comprobante.pdf');
     Route::get('/comprobante/{id}', [PedidoController::class, 'comprobante'])->name('shop.comprobante');
     Route::get('/pedido-personalizado', [PedidoPersonalizadoController::class, 'create'])->name('shop.pedido_personalizado');
     Route::post('/pedido-personalizado', [PedidoPersonalizadoController::class, 'store'])->middleware('throttle:3,1');

@@ -48,8 +48,8 @@
                 <li><a href="{{ route('register') }}" class="nav-cart" style="background:var(--gold); color:var(--ink);">Registrarse</a></li>
             @endauth
                 </ul>
-        <a href="{{ route('shop.cart') }}" class="nav-cart">
-            🛒 Carrito
+        <a href="{{ route('shop.cart') }}" class="nav-cart" aria-label="Ver carrito">
+            <span aria-hidden="true">🛒</span> <span class="cart-label">Carrito</span>
             @if(session('carrito') && count(session('carrito')) > 0)
                 <span class="cart-badge">{{ array_sum(array_column(session('carrito'), 'cantidad')) }}</span>
             @endif

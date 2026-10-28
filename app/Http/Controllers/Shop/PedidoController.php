@@ -47,6 +47,19 @@ class PedidoController extends Controller
         session()->forget(['carrito', 'checkout_token']);
         return redirect()->route('shop.comprobante', $pedido->id);
     }
+    public function descargarComprobante($id)
+    {
+        $pedido = Pedido::findOrFail($id);
+        VentasTienda::autorizar($pedido, Auth::user());
+        $referencia = strtoupper(substr((string) $pedido->id, -8));
+        return response(app(\App\Services\ComprobantePdf::class)->generar($pedido), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="comprobante-'.$referencia.'.pdf"',
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function comprobante($id)
     {
         $pedido = Pedido::findOrFail($id);

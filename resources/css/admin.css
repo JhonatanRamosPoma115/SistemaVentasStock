@@ -85,3 +85,26 @@ body { background-color: #f4f6f9; font-family: 'Segoe UI', system-ui, -apple-sys
     .weekly-report .report-print-notes { margin-top: 3mm; padding-top: 2mm; font-size: 7pt; line-height: 1.35; break-inside: avoid; }
     .weekly-report .report-print-notes p { margin: 0 0 1.5mm; }
 }
+
+.admin-shell { width: 100%; }
+.admin-main { flex: 1 1 0; width: 0; }
+.admin-main .row > *, .admin-main .card { min-width: 0; }
+.admin-main .table-responsive { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.admin-main .table td { overflow-wrap: anywhere; }
+.admin-backdrop { display: none; }
+@media screen and (max-width: 900px) {
+    .admin-main { width: 100%; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: min(300px, 85vw); height: 100dvh; z-index: 1050; overflow-y: auto; box-shadow: 8px 0 30px #0003; }
+    .admin-menu-open { overflow: hidden; }
+    .admin-menu-open .admin-backdrop { display: block; position: fixed; inset: 0; background: #0008; border: 0; z-index: 1040; }
+    .topbar { position: sticky; top: 0; z-index: 100; flex-wrap: nowrap; gap: .75rem; }
+    .topbar h5 { font-size: 1rem; min-width: 0; line-height: 1.3; }
+    .admin-main .card.p-4 { padding: 1rem !important; }
+    .admin-main .table { min-width: 540px; }
+    .admin-main .table th, .admin-main .table td { padding: .7rem; }
+    .admin-main .d-flex { min-width: 0; }
+    .admin-filters { padding: 1rem; gap: .75rem; }
+    .admin-filters > div { min-width: 0; }
+    .admin-main input, .admin-main select, .admin-main textarea { max-width: 100%; font-size: 16px; }
+}
+@media print { .admin-main { width: 100%; } .admin-backdrop { display: none !important; } }

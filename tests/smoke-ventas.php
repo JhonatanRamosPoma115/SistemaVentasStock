@@ -26,12 +26,6 @@ class AlmacenMemoria extends AlmacenTienda
     public function polerasVacias(): App\Models\PoleraVacia { return clone ($this->vacias ?? (new App\Models\PoleraVacia(['variantes'=>[],'stock'=>0]))->forceFill(['_id'=>App\Models\PoleraVacia::INVENTARIO_ID])); }
     public function guardarVacias(App\Models\PoleraVacia $producto): void { $this->vacias=clone $producto; }
     public function registrarReferenciaPago(string $referencia,string $id,bool $personalizado): void { $key=mb_strtoupper(trim($referencia)); if(isset($this->referencias[$key])) throw ValidationException::withMessages(['referencia_pago'=>'Duplicada']); $this->referencias[$key]=$id; }
-    public function validarPendientes(User $user,bool $personalizado=false): void {
-        $items=$personalizado ? $this->personalizados : $this->pedidos;
-        $states=$personalizado ? ['pendiente_revision','cotizado','aprobado'] : ['pendiente'];
-        $count=count(array_filter($items,fn($p)=>(string)$p->usuario_id===(string)$user->id && in_array($p->estado,$states,true)));
-        if($count >= config($personalizado ? 'tienda.max_personalizados_pendientes' : 'tienda.max_pedidos_pendientes')) throw ValidationException::withMessages(['pedido'=>'Límite de solicitudes']);
-    }
     public function transaccion(callable $operation): mixed {
         $copy = fn ($items) => array_map(fn ($item) => clone $item, $items);
         $before = [$copy($this->productos), $copy($this->pedidos), $copy($this->personalizados), $this->movimientos, $this->referencias, $this->vacias ? clone $this->vacias : null];
@@ -177,7 +171,7 @@ $idSeguro='000000000000000000000090';
 $carritoSeguro=['a'=>['producto_id'=>$productId,'variante_id'=>'m','cantidad'=>1,'precio'=>80.25]];
 $ventaSegura->confirmar($carritoSeguro,$user,[],$idSeguro);
 $ventaSegura->confirmar($carritoSeguro,$user,[],'000000000000000000000091');
-fails(fn()=>$ventaSegura->confirmar($carritoSeguro,$user,[],'000000000000000000000092'),'El límite de pendientes impide acumular solicitudes desde una cuenta');
+checkSales($ventaSegura->confirmar($carritoSeguro,$user,[],'000000000000000000000092')->estado === 'pendiente','Permite otro pedido aunque la cuenta tenga pedidos pendientes');
 checkSales($seguro->productos[$productId]->stock === 3,'Varias solicitudes no pagadas no retienen prendas');
 $carritoGrande=$carritoSeguro; $carritoGrande['a']['cantidad']=20;
 fails(fn()=>$ventaSegura->confirmar($carritoGrande,$other,[],'000000000000000000000093'),'Rechaza solicitudes masivas superiores al límite de prendas');

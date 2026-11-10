@@ -26,7 +26,7 @@ thead { display: table-header-group; } tr { page-break-inside: avoid; }
 <p><strong>Correo:</strong> {{ $pedido->correo_cliente }}</p>
 <p><strong>Teléfono:</strong> {{ $pedido->telefono }}</p>
 <p><strong>Dirección:</strong> {{ $pedido->direccion_entrega }}</p>
-<p><strong>Entrega {{ ($pedido->entrega_confirmada ?? false) ? 'confirmada' : 'solicitada' }}:</strong> {{ $pedido->fecha_entrega ?? 'A coordinar' }} · {{ $pedido->franja_entrega ?? 'Horario a coordinar' }} (La Paz).</p>
+<p><strong>Entrega {{ ($pedido->entrega_confirmada ?? false) ? 'confirmada' : 'solicitada' }}:</strong> {{ $pedido->fecha_entrega ?? 'A coordinar' }} · {{ $pedido->hora_entrega ?? $pedido->franja_entrega ?? 'Horario a coordinar' }} (La Paz).</p>
 @if($pedido->nota)<p><strong>Nota:</strong> {{ $pedido->nota }}</p>@endif
 <h2>Detalle de productos</h2>
 <table><thead><tr><th style="width:57%">Producto</th><th style="width:10%">Cant.</th><th style="width:33%;text-align:right">Subtotal</th></tr></thead><tbody>

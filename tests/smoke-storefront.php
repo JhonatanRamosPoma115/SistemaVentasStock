@@ -107,7 +107,7 @@ if (function_exists('imagewebp')) {
     }
 }
 
-$payload = ['personalizado_token'=>'0000000000000000000000aa','direccion_entrega'=>'La Paz','franja_entrega'=>'09:00-12:00','descripcion_diseno' => 'Una cruz', 'color_prenda' => 'Negro', 'para_cuando' => now()->addWeekdays(6)->toDateString(), 'telefono' => '70000000', 'tallas' => ['M' => 0], 'tamano_diseno' => 'mediano'];
+$payload = ['personalizado_token'=>'0000000000000000000000aa','direccion_entrega'=>'La Paz','franja_entrega'=>'09:00-12:00','hora_entrega'=>'10:30','descripcion_diseno' => 'Una cruz', 'color_prenda' => 'Negro', 'para_cuando' => now()->addWeekdays(6)->toDateString(), 'telefono' => '70000000', 'tallas' => ['M' => 0], 'tamano_diseno' => 'mediano'];
 $customRequest = Illuminate\Http\Request::create('/pedido-personalizado', 'POST', $payload);
 $customRequest->setLaravelSession(app('session')->driver());
 $response = app(App\Http\Controllers\Shop\PedidoPersonalizadoController::class)->store($customRequest);
@@ -201,23 +201,31 @@ try {
     throw new RuntimeException('Informe aceptó una fecha inexistente');
 } catch (Illuminate\Validation\ValidationException $exception) { check(isset($exception->errors()['semana']), 'Informe rechaza fechas inexistentes antes de consultar la base de datos'); }
 $errorBag=new Illuminate\Support\ViewErrorBag;
-$errorBag->put('default',new Illuminate\Support\MessageBag(['pedido'=>['Ya tienes solicitudes pendientes.'],'carrito'=>['No hay stock suficiente.'],'franja_entrega'=>['Selecciona uno de los horarios disponibles.']]));
+$errorBag->put('default',new Illuminate\Support\MessageBag(['carrito'=>['No hay stock suficiente.'],'hora_entrega'=>['Elige una hora dentro de la franja.']]));
 Illuminate\Support\Facades\View::share('errors',$errorBag);
 $checkoutErrorsHtml=view('shop.checkout',['carrito'=>$cart,'total'=>160])->render();
-check(str_contains($checkoutErrorsHtml,'Ya tienes solicitudes pendientes.') && str_contains($checkoutErrorsHtml,'No hay stock suficiente.') && str_contains($checkoutErrorsHtml,'Selecciona uno de los horarios disponibles.'),'Checkout muestra los errores de negocio y horario, no solo un aviso genérico');
+check(str_contains($checkoutErrorsHtml,'No hay stock suficiente.') && str_contains($checkoutErrorsHtml,'Elige una hora dentro de la franja.'),'Checkout muestra los errores de negocio y hora exacta');
 Illuminate\Support\Facades\View::share('errors',new Illuminate\Support\ViewErrorBag);
 $checkoutToken='0000000000000000000000ab';
 session()->put('checkout_token',$checkoutToken); session()->put('carrito',$cart);
-$validRequest=Illuminate\Http\Request::create('/checkout/confirmar','POST',['telefono'=>'70012345','direccion_entrega'=>'La Paz, Centro','fecha_entrega'=>today()->addDay()->toDateString(),'franja_entrega'=>'09:00-12:00','metodo_pago'=>'qr','checkout_token'=>$checkoutToken]);
+$validRequest=Illuminate\Http\Request::create('/checkout/confirmar','POST',['telefono'=>'70012345','direccion_entrega'=>'La Paz, Centro','fecha_entrega'=>today()->addDay()->toDateString(),'franja_entrega'=>'09:00-12:00','hora_entrega'=>'10:30','metodo_pago'=>'qr','checkout_token'=>$checkoutToken]);
 $validRequest->setLaravelSession(app('session')->driver());
 $fakeSales=new class extends App\Services\VentasTienda {
     public bool $received=false;
     public function __construct() {}
     public function confirmar(array $cart, App\Models\User $user, array $delivery, string $id): App\Models\Pedido {
-        $this->received=$delivery['franja_entrega']==='09:00-12:00' && $delivery['metodo_pago']==='qr';
+        $this->received=$delivery['franja_entrega']==='09:00-12:00' && $delivery['hora_entrega']==='10:30' && $delivery['metodo_pago']==='qr';
         return (new App\Models\Pedido)->forceFill(['_id'=>$id]);
     }
 };
+$invalidTime = clone $validRequest;
+$invalidTime->merge(['hora_entrega' => '13:00']);
+try {
+    app(App\Http\Controllers\Shop\PedidoController::class)->confirmar($invalidTime,$fakeSales);
+    throw new RuntimeException('Checkout aceptó una hora fuera de la franja.');
+} catch (Illuminate\Validation\ValidationException $exception) {
+    check(isset($exception->errors()['hora_entrega']), 'Checkout rechaza horas fuera de la franja');
+}
 $checkoutResponse=app(App\Http\Controllers\Shop\PedidoController::class)->confirmar($validRequest,$fakeSales);
 check($checkoutResponse->getStatusCode() === 302 && $fakeSales->received,'Checkout completo con fecha, horario y QR supera la validación y envía el pedido');
 echo 'Comprobaciones completadas sin acceder a MongoDB.'.PHP_EOL;

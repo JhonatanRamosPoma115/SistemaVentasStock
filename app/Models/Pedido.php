@@ -15,7 +15,7 @@ class Pedido extends Model
     }
 
     protected $fillable = [
-        'fecha_entrega', 'franja_entrega', 'entrega_confirmada', 'monto_pagado_centavos', 'pagos', 'politica_pago',
+        'fecha_entrega', 'franja_entrega', 'hora_entrega', 'entrega_confirmada', 'monto_pagado_centavos', 'pagos', 'politica_pago',
         'usuario_id',
         'nombre_cliente',
         'correo_cliente',

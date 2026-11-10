@@ -25,7 +25,7 @@ class PedidoController extends Controller
             'telefono' => ['required', new \App\Rules\TelefonoBolivia], 'direccion_entrega' => 'required|string|max:300',
             'nota' => 'nullable|string|max:1000', 'metodo_pago' => 'required|in:qr,transferencia',
             'fecha_entrega'=>'required|date_format:Y-m-d|after_or_equal:today',
-            'franja_entrega'=>['required',\Illuminate\Validation\Rule::in(config('tienda.franjas'))],
+            'hora_entrega'=>['required','date_format:H:i',new \App\Rules\HoraEnFranja($request->input('franja_entrega'))], 'franja_entrega'=>['required',\Illuminate\Validation\Rule::in(config('tienda.franjas'))],
             'checkout_token' => 'required|regex:/^[a-f0-9]{24}$/i',
         ], [
             'checkout_token.required'=>'La sesión del pedido necesita actualizarse. Recarga esta página antes de enviarlo.',

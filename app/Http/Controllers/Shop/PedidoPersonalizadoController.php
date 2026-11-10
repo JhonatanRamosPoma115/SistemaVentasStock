@@ -43,7 +43,7 @@ class PedidoPersonalizadoController extends Controller
             'para_cuando'        => 'required|date_format:Y-m-d|after_or_equal:'.now()->addWeekdays(5)->toDateString(),
             'telefono'           => ['required', new \App\Rules\TelefonoBolivia],
             'direccion_entrega'=>'required|string|max:300',
-            'franja_entrega'=>['required',\Illuminate\Validation\Rule::in(config('tienda.franjas'))],
+            'hora_entrega'=>['required','date_format:H:i',new \App\Rules\HoraEnFranja($request->input('franja_entrega'))], 'franja_entrega'=>['required',\Illuminate\Validation\Rule::in(config('tienda.franjas'))],
             'tallas'             => 'required|array:XS,S,M,L,XL,XXL,3XL',
             'tallas.*'           => 'required|integer|min:0|max:999',
             'imagen_referencia'  => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
@@ -85,11 +85,11 @@ class PedidoPersonalizadoController extends Controller
                 $imagenPath = $request->file('imagen_referencia')->store('pedidos_personalizados', 'pedidos');
             }
             $creado=$almacen->transaccion(function () use ($almacen,$request,$tallas,$totalPrendas,$editor,$imagenPath,$id) {
-            $almacen->validarPendientes($request->user(),true);
+
             if ($existente=$almacen->personalizado($id)) { \App\Services\VentasTienda::autorizar($existente,$request->user()); return false; }
             (new PedidoPersonalizado([
             'archivos_privados'=>array_merge($editor['archivos_creados'],$imagenPath ? [$imagenPath] : []),
-            'direccion_entrega'=>$request->direccion_entrega,'franja_entrega'=>$request->franja_entrega,
+            'direccion_entrega'=>$request->direccion_entrega,'franja_entrega'=>$request->franja_entrega,'hora_entrega'=>$request->hora_entrega,
             'estado_pago'=>'pendiente','monto_pagado_centavos'=>0,'pagos'=>[],'politica_pago'=>'completo_100','inventario_vacio_reservado'=>false,
             'usuario_id'         => Auth::id(),
             'nombre_cliente'     => Auth::user()->nombre,

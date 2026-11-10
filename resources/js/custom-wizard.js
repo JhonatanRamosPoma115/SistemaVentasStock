@@ -21,7 +21,7 @@ function review() {
         'Color': form.elements.color_prenda.value,
         'Contacto': form.elements.telefono.value,
         'Dirección': form.elements.direccion_entrega.value,
-        'Horario solicitado': form.elements.franja_entrega.value,
+        'Hora solicitada (La Paz)': form.elements.hora_entrega.value,
         'Fecha requerida': form.elements.para_cuando.value,
     };
     const designs = JSON.parse(form.dataset.editorDesigns || '{"frente":0,"espalda":0}');

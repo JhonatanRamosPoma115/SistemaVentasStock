@@ -16,7 +16,7 @@ class PedidoPersonalizado extends Model
 
     protected $fillable = [
         'archivos_privados',
-        'direccion_entrega', 'franja_entrega', 'entrega_confirmada', 'estado_pago', 'monto_pagado_centavos', 'pagos', 'inventario_vacio_reservado', 'politica_pago',
+        'direccion_entrega', 'franja_entrega', 'hora_entrega', 'entrega_confirmada', 'estado_pago', 'monto_pagado_centavos', 'pagos', 'inventario_vacio_reservado', 'politica_pago',
         'usuario_id',
         'nombre_cliente',
         'correo_cliente',

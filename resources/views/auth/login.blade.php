@@ -7,7 +7,7 @@
     <div style="background:var(--white); padding:2.5rem; border-radius:var(--radius); box-shadow:var(--shadow); width:100%; max-width:420px;">
 
         <h2 style="font-family:var(--ff-head); font-size:2rem; margin-bottom:.5rem;">Bienvenida</h2>
-        <p style="color:var(--muted); font-size:.88rem; margin-bottom:2rem;">Accede al panel de administración</p>
+        <p style="color:var(--muted); font-size:.88rem; margin-bottom:2rem;">Accede a tu cuenta con el correo que registraste.</p>
 
         @if($errors->any())
             <div class="flash error" style="margin-bottom:1rem; border-radius:var(--radius);">

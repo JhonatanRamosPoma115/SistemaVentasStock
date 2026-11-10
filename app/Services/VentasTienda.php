@@ -25,7 +25,7 @@ class VentasTienda
             }
             if (!$cart || count($cart) > 50) throw ValidationException::withMessages(['carrito' => 'Revisa los productos de tu carrito.']);
             if (array_sum(array_column($cart,'cantidad')) > config('tienda.max_unidades_catalogo')) throw ValidationException::withMessages(['carrito'=>'Por seguridad, el máximo es '.config('tienda.max_unidades_catalogo').' prendas por pedido. Para cantidades mayores, contacta a la tienda.']);
-            $this->almacen->validarPendientes($user);
+
             $items = []; $total = 0;
             foreach ($cart as $key => $item) {
                 $productId = $item['producto_id'] ?? $key;

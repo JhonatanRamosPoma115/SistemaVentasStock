@@ -3,6 +3,7 @@
 require __DIR__.'/../vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+Storage::fake('pedidos');
 set_exception_handler(function (Throwable $exception) {
     fwrite(STDERR, 'FAIL: '.get_class($exception).': '.$exception->getMessage().PHP_EOL);
     exit(1);
@@ -46,6 +47,29 @@ try {
     checkEditor(str_contains($html, 'Vista de Frente') && str_contains($html, 'Vista de Espalda'), 'Administración presenta ambas vistas');
     checkEditor(str_contains($html, 'a.png') && str_contains($html, 'b.png') && str_contains($html, 'c.png'), 'Administración presenta todos los diseños');
     checkEditor(str_contains($html,'12 × 5 cm') && str_contains($html,'5 × 5 cm'),'Administración muestra el ancho y alto solicitados de cada imagen');
+
+    $stamp = array_replace(layer('versiculo', 0), [
+        'tipo' => 'texto', 'archivo' => null, 'ancho_cm' => 25, 'alto_cm' => 18,
+        'estampado' => ['style' => 'retro', 'verse' => 'Todo lo puedo en Cristo <prueba>',
+            'reference' => 'Filipenses 4:13', 'ink' => '#211b18', 'accent' => '#896226'],
+    ]);
+    $textOrder = ['version' => 3, 'lados' => ['frente' => [], 'espalda' => [$stamp]]];
+    $stored = $service->guardar(json_encode($textOrder), [], ['frente' => $preview, 'espalda' => $preview], null, true);
+    $pedido->posicion_diseno = $stored['posicion'];
+    $pedido->vistas_prenda = $stored['vistas'];
+    $pedido->imagen_diseno = null;
+    $html = view('admin.pedidos_personalizados.show', compact('pedido'))->render();
+    checkEditor($stored['imagenes'] === [] && count($stored['vistas']) === 2, 'Acepta un pedido de solo texto con las dos vistas y sin archivo de imagen');
+    checkEditor(str_contains($html, 'Versículo · Retro') && str_contains($html, 'Filipenses 4:13')
+        && str_contains($html, '#896226') && str_contains($html, '25 × 18 cm')
+        && str_contains($html, '&lt;prueba&gt;'), 'Administración muestra los datos del estampado y escapa el texto');
+    unset($textOrder['lados']['espalda'][0]['estampado']['style']);
+    try {
+        $service->guardar(json_encode($textOrder), [], ['espalda' => $preview], null, true);
+        throw new RuntimeException('Aceptó un estampado sin estilo');
+    } catch (Illuminate\Validation\ValidationException $exception) {
+        checkEditor(isset($exception->errors()['lados.espalda.0.estampado.style']), 'Rechaza un estampado sin estilo');
+    }
 } finally {
     Storage::disk('pedidos')->delete($result['archivos_creados']);
 }

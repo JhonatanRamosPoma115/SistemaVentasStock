@@ -53,7 +53,19 @@
                     <img loading="lazy" decoding="async" src="{{ \App\Services\ArchivosTienda::url($pedido->vistas_prenda[$lado]) }}" alt="Vista de {{ $nombre }}" width="400" height="500" style="width:100%;height:auto;max-height:360px;object-fit:contain">
                 @endif
                 @forelse($posicion['lados'][$lado] ?? [] as $capa)
-                    <div class="border-top pt-2 mt-2"><a href="{{ \App\Services\ArchivosTienda::url($capa['original'] ?? $capa['imagen']) }}" target="_blank" rel="noopener noreferrer">{{ $capa['nombre'] }}</a>
+                    <div class="border-top pt-2 mt-2">
+                        @if(($capa['tipo'] ?? null) === 'texto')
+                            <strong>{{ $capa['nombre'] }}</strong>
+                            <blockquote class="small text-break mb-1" style="white-space:pre-wrap">{{ $capa['estampado']['verse'] }}</blockquote>
+                            @if(!empty($capa['estampado']['reference']))
+                                <p class="small mb-1">{{ $capa['estampado']['reference'] }}</p>
+                            @endif
+                            <p class="small mb-1">Color del texto {{ $capa['estampado']['ink'] }} · Detalles {{ $capa['estampado']['accent'] }}</p>
+                        @elseif(!empty($capa['original'] ?? $capa['imagen'] ?? null))
+                            <a href="{{ \App\Services\ArchivosTienda::url($capa['original'] ?? $capa['imagen']) }}" target="_blank" rel="noopener noreferrer">{{ $capa['nombre'] }}</a>
+                        @else
+                            <strong>{{ $capa['nombre'] }}</strong>
+                        @endif
                         <p class="small text-muted mb-0">Posición: {{ $capa['left'] }}, {{ $capa['top'] }} · Tamaño en vista previa: {{ $capa['ancho'] }} × {{ $capa['alto'] }} · Giro: {{ $capa['angulo'] }}°</p>
                         <p class="small mb-0"><strong>Medida solicitada:</strong> @if(isset($capa['ancho_cm'], $capa['alto_cm'])){{ $capa['ancho_cm'] }} × {{ $capa['alto_cm'] }} cm (ancho × alto)@else No especificada en este pedido antiguo.@endif</p>
                     </div>

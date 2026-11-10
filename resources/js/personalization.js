@@ -1,6 +1,7 @@
 import './custom-wizard.js';
 import './blank-stock.js';
 import { DesignState, createDesignId } from './design-state.js';
+import { drawVerseStamp } from './verse-stamps.js';
 
 const form = document.getElementById('custom-order-form');
 const notice = document.getElementById('editor-notice');
@@ -27,6 +28,7 @@ function initializeEditor(fabric) {
     const colorInput = form.elements.color_prenda;
     const selectedDesignId = form.elements.diseno_id.value;
     let pending = 0;
+    let editingStamp = null;
     let color = '#eeeae4';
     const colors = { blanco: '#f5f4ef', negro: '#30343a', azul: '#5b85ad', rojo: '#b74444', verde: '#4d8264', gris: '#a6a8aa', amarillo: '#ebcc65', morado: '#886799' };
     color = colors[colorInput.value.toLowerCase().trim()] || color;
@@ -61,7 +63,7 @@ function initializeEditor(fabric) {
         const transfer = new DataTransfer();
         state.files().forEach(file => transfer.items.add(file));
         uploads.files = transfer.files;
-        form.elements.diseno_id.value = state.items.some(item => !item.file) ? selectedDesignId : '';
+        form.elements.diseno_id.value = state.items.some(item => !item.file && !item.stamp) ? selectedDesignId : '';
     }
     function selectedItem() { return state.visible().find(item => item.object === canvas.getActiveObject()); }
     const pixelsPerCm = 5; // Escala ilustrativa; las medidas reales se guardan aparte de los píxeles.
@@ -92,14 +94,14 @@ function initializeEditor(fabric) {
         if (!state.visible().length) {
             const empty = document.createElement('p');
             empty.className = 'editor-empty';
-            empty.textContent = 'Este lado todavía no tiene diseños. Agrega una imagen para empezar.';
+            empty.textContent = 'Este lado todavía no tiene diseños. Agrega una imagen o un versículo para empezar.';
             list.append(empty);
         }
         state.visible().forEach(item => {
             const row = document.createElement('div'); row.className = 'editor-layer';
             const select = document.createElement('button'); select.type = 'button'; select.className = 'editor-layer-select';
             select.setAttribute('aria-pressed', String(selected?.id === item.id));
-            const thumbnail = document.createElement('img'); thumbnail.src = item.object.getSrc(); thumbnail.alt = ''; thumbnail.width = 40; thumbnail.height = 40;
+            const thumbnail = document.createElement('img'); thumbnail.src = item.thumbnail ?? item.object.getSrc(); thumbnail.alt = ''; thumbnail.width = 40; thumbnail.height = 40;
             const name = document.createElement('span'); name.textContent = item.label;
             select.append(thumbnail, name);
             select.addEventListener('click', () => { canvas.setActiveObject(item.object); canvas.renderAll(); updateControls(); });
@@ -122,13 +124,25 @@ function initializeEditor(fabric) {
                 });
                 label.append(input); dimensions.append(label);
             }
-            row.append(select, remove, dimensions); list.append(row);
+            row.append(select);
+            if (item.stamp) {
+                const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'editor-layer-remove'; edit.textContent = 'Editar texto';
+                edit.addEventListener('click', () => editStamp(item));
+                row.append(edit);
+            }
+            row.append(remove, dimensions); list.append(row);
         });
         form.dataset.editorDesigns = JSON.stringify({ frente: state.items.filter(item => item.side === 'frente').length, espalda: state.items.filter(item => item.side === 'espalda').length });
         publishMeasures();
     }
-    function removeItem(item) { state.remove(item.id); synchronizeFiles(); refresh(); }
-    function changeSide(side) { state.changeSide(side); refresh(); }
+    function removeItem(item) {
+        if (editingStamp === item) finishStampEdit();
+        state.remove(item.id); synchronizeFiles(); refresh();
+    }
+    function changeSide(side) {
+        if (side !== state.side && editingStamp) finishStampEdit();
+        state.changeSide(side); refresh();
+    }
     document.querySelectorAll('[data-editor-side]').forEach(button => button.addEventListener('click', () => changeSide(button.dataset.editorSide)));
     document.querySelectorAll('[data-editor-action]').forEach(button => button.addEventListener('click', () => {
         const item = selectedItem(); if (!item) return;
@@ -169,6 +183,77 @@ function initializeEditor(fabric) {
     });
     function loadImage(url) {
         return new Promise((resolve, reject) => fabric.Image.fromURL(url, (image, error) => error || !image ? reject(new Error('No se pudo leer la imagen.')) : resolve(image), { crossOrigin: 'anonymous' }));
+    }
+    const stampPanel = document.getElementById('verse-stamps');
+    const stampFields = {
+        verse: document.getElementById('stamp-verse'),
+        reference: document.getElementById('stamp-reference'),
+        ink: document.getElementById('stamp-ink'),
+        accent: document.getElementById('stamp-accent'),
+    };
+    const stampHelp = document.getElementById('stamp-help');
+    const stampCancel = document.getElementById('stamp-cancel');
+    const stampCards = stampPanel.querySelectorAll('[data-stamp-style]');
+    const stampNames = { urbano: 'Urbano', retro: 'Retro', caligrafico: 'Caligráfico' };
+    const readStamp = () => Object.fromEntries(Object.entries(stampFields).map(([key, input]) => [key, input.value.trim()]));
+
+    function showStampCards() {
+        const draft = readStamp();
+        for (const card of stampCards) {
+            card.disabled = !draft.verse;
+            drawVerseStamp(card.querySelector('canvas'), card.dataset.stampStyle, {
+                ...draft,
+                verse: draft.verse || 'Todo lo puedo en Cristo que me fortalece',
+                reference: draft.verse ? draft.reference : 'Filipenses 4:13',
+            });
+        }
+    }
+    function finishStampEdit() {
+        editingStamp = null;
+        stampCancel.hidden = true;
+        stampHelp.textContent = 'Elige una tarjeta para añadir un estampado al lado activo.';
+    }
+    function editStamp(item) {
+        editingStamp = item;
+        for (const [key, field] of Object.entries(stampFields)) field.value = item.stamp[key];
+        stampCancel.hidden = false;
+        stampHelp.textContent = 'Cambia el texto o los colores y elige una tarjeta para aplicar los cambios al estampado.';
+        showStampCards();
+        stampFields.verse.focus();
+    }
+    stampCancel.addEventListener('click', finishStampEdit);
+    stampPanel.addEventListener('input', showStampCards);
+    stampPanel.disabled = false;
+    showStampCards();
+    for (const card of stampCards) {
+        card.addEventListener('click', () => {
+            const draft = readStamp();
+            if (!draft.verse) return;
+            const style = card.dataset.stampStyle;
+            const artwork = drawVerseStamp(document.createElement('canvas'), style, draft);
+            const stamp = { ...draft, style };
+            const label = `Versículo · ${stampNames[style]}`;
+            try {
+                let item = editingStamp;
+                if (item) {
+                    item.object.setElement(artwork);
+                    item.stamp = stamp;
+                    item.label = label;
+                } else {
+                    const object = new fabric.Image(artwork, {
+                        left: 136, top: 170, cornerColor: '#98702d', borderColor: '#98702d',
+                        transparentCorners: false, cornerSize: 11, lockScalingFlip: true,
+                    });
+                    item = state.add({ id: createDesignId(), label, stamp, object, widthCm: 25, heightCm: 16.41 });
+                    applyMeasures(item);
+                }
+                item.thumbnail = artwork.toDataURL();
+                finishStampEdit();
+                refresh();
+                canvas.setActiveObject(item.object); canvas.renderAll(); updateControls();
+                notice.textContent = `${label} colocado en ${item.side}.`;
+            } catch (error) { notice.textContent = error.message; }
+        });
     }
     async function addImage(url, label, file, side = state.side) {
         const object = await loadImage(url);

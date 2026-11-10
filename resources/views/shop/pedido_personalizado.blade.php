@@ -60,6 +60,32 @@
                     style="width:100%; padding:.7rem 1rem; border:1px solid rgba(0,0,0,.15); border-radius:4px; font-family:var(--ff-body); font-size:.9rem; resize:vertical;">{{ old('descripcion_diseno', $disenoSeleccionado ? 'Diseño: ' . $disenoSeleccionado->nombre . ' — ' . $disenoSeleccionado->versiculo : '') }}</textarea>
             </div>
 
+            <fieldset id="verse-stamps" class="verse-stamps" disabled>
+                <legend>Estampa tu versículo</legend>
+                <div class="field">
+                    <label for="stamp-verse">Versículo</label>
+                    <textarea id="stamp-verse" rows="3" maxlength="280" placeholder="Todo lo puedo en Cristo que me fortalece"></textarea>
+                </div>
+                <div class="field">
+                    <label for="stamp-reference">Referencia bíblica (opcional)</label>
+                    <input id="stamp-reference" type="text" maxlength="60" placeholder="Filipenses 4:13">
+                </div>
+                <div class="stamp-colors">
+                    <label>Color del texto <input id="stamp-ink" type="color" value="#211b18"></label>
+                    <label>Color de los detalles <input id="stamp-accent" type="color" value="#896226"></label>
+                </div>
+                <p id="stamp-help" class="editor-help" role="status">Escribe tu versículo y elige un estilo para colocarlo en el lado activo.</p>
+                <div class="stamp-options">
+                    @foreach(['urbano' => 'Urbano', 'retro' => 'Retro', 'caligrafico' => 'Caligráfico'] as $estilo => $etiqueta)
+                        <button class="stamp-option" type="button" data-stamp-style="{{ $estilo }}" disabled>
+                            <canvas aria-hidden="true"></canvas>
+                            <span>{{ $etiqueta }}</span>
+                        </button>
+                    @endforeach
+                </div>
+                <button id="stamp-cancel" type="button" class="btn btn-outline" hidden>Cancelar edición</button>
+            </fieldset>
+
             {{-- EDITOR FABRIC.JS --}}
             <div style="margin-bottom:1.5rem;">
                 <label style="font-size:.85rem; font-weight:500; display:block; margin-bottom:.8rem;">
@@ -89,7 +115,7 @@
                             <button type="button" data-editor-action="reset" class="btn btn-outline" disabled>Centrar</button>
                             <button type="button" data-editor-action="remove" class="btn btn-outline" disabled>Quitar diseño</button>
                         </div>
-                        <p class="editor-help">Selecciona una imagen para moverla, girarla o cambiar su tamaño. Cada lado conserva sus propios diseños.</p>
+                        <p class="editor-help">Selecciona un diseño para moverlo, girarlo o cambiar su tamaño. Cada lado conserva sus propios diseños.</p>
                     </div>
 
                     {{-- Instrucciones --}}
@@ -123,7 +149,7 @@
                         </div>
                         @endif
 
-                        <p class="editor-help">Cada imagen tiene sus propias medidas de ancho y alto en centímetros. Puedes usar decimales y editar cada lado por separado. La polera es una referencia visual; la tienda confirmará la viabilidad al cotizar.</p>
+                        <p class="editor-help">Cada diseño tiene sus propias medidas de ancho y alto en centímetros. Puedes usar decimales y editar cada lado por separado. La polera es una referencia visual; la tienda confirmará la viabilidad al cotizar.</p>
                     </div>
                 </div>
             </div>

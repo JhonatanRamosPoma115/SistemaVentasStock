@@ -35,7 +35,8 @@ export class DesignState {
             const object = item.object;
             sides[item.side].push({
                 id: item.id, nombre: item.label,
-                tipo: item.file ? 'archivo' : 'catalogo',
+                tipo: item.stamp ? 'texto' : item.file ? 'archivo' : 'catalogo',
+                ...(item.stamp ? { estampado: item.stamp } : {}),
                 archivo: item.file ? fileIndex++ : null,
                 left: Math.round(object.left), top: Math.round(object.top),
                 ancho: Math.max(1, Math.round(object.getScaledWidth())), alto: Math.max(1, Math.round(object.getScaledHeight())),

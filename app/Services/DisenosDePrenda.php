@@ -17,12 +17,18 @@ class DisenosDePrenda
             'lados' => 'required|array:frente,espalda',
             'lados.frente' => 'present|array|max:10',
             'lados.espalda' => 'present|array|max:10',
-            'lados.*.*' => 'array:id,nombre,tipo,archivo,left,top,ancho,alto,angulo,ancho_cm,alto_cm',
+            'lados.*.*' => 'array:id,nombre,tipo,archivo,left,top,ancho,alto,angulo,ancho_cm,alto_cm,estampado',
             'lados.*.*.ancho_cm' => [($exigirMedidas || ($manifest['version'] ?? 2) === 3) ? 'required' : 'nullable','numeric','between:0.1,100','decimal:0,2'],
             'lados.*.*.alto_cm' => [($exigirMedidas || ($manifest['version'] ?? 2) === 3) ? 'required' : 'nullable','numeric','between:0.1,100','decimal:0,2'],
             'lados.*.*.id' => 'required|string|max:60',
             'lados.*.*.nombre' => 'required|string|max:255',
-            'lados.*.*.tipo' => 'required|in:archivo,catalogo',
+            'lados.*.*.tipo' => 'required|in:archivo,catalogo,texto',
+            'lados.*.*.estampado' => 'required_if:lados.*.*.tipo,texto|array:verse,reference,ink,accent,style',
+            'lados.*.*.estampado.verse' => 'required_if:lados.*.*.tipo,texto|string|max:280',
+            'lados.*.*.estampado.reference' => 'nullable|string|max:60',
+            'lados.*.*.estampado.ink' => 'required_if:lados.*.*.tipo,texto|regex:/^#[0-9a-fA-F]{6}$/D',
+            'lados.*.*.estampado.accent' => 'required_if:lados.*.*.tipo,texto|regex:/^#[0-9a-fA-F]{6}$/D',
+            'lados.*.*.estampado.style' => 'required_if:lados.*.*.tipo,texto|in:urbano,retro,caligrafico',
             'lados.*.*.archivo' => 'nullable|integer|between:0,9',
             'lados.*.*.left' => 'required|numeric|between:0,400',
             'lados.*.*.top' => 'required|numeric|between:0,500',
@@ -37,9 +43,16 @@ class DisenosDePrenda
             if ($layer['tipo'] === 'archivo') {
                 if (!isset($layer['archivo']) || !isset($files[$layer['archivo']])) $this->invalid('Falta el archivo de uno de los diseños.');
                 $indexes[] = $layer['archivo'];
-            } else {
+            } elseif ($layer['tipo'] === 'catalogo') {
                 $catalogCount++;
                 if (!$catalogImage) $this->invalid('El diseño del catálogo no tiene una imagen disponible.');
+            } elseif (isset($layer['archivo'])) {
+                $this->invalid('Los estampados de texto no requieren un archivo.');
+            }
+        }
+        foreach ($manifest['lados'] as $side => $items) {
+            if (in_array('texto', array_column($items, 'tipo'), true) && empty($previews[$side])) {
+                $this->invalid('Falta la vista previa del estampado. Vuelve al editor y revisa el diseño.');
             }
         }
         if (count($layers) > 10 || $catalogCount > 1 || count(array_unique($indexes)) !== count($indexes) || count($indexes) !== count($files)) {
@@ -77,6 +90,11 @@ class DisenosDePrenda
             }
             foreach ($manifest['lados'] as &$side) {
                 foreach ($side as &$layer) {
+                    if ($layer['tipo'] === 'texto') {
+                        $layer['nombre'] = 'Versículo · '.['urbano' => 'Urbano', 'retro' => 'Retro', 'caligrafico' => 'Caligráfico'][$layer['estampado']['style']];
+                        continue;
+                    }
+                    unset($layer['estampado']);
                     $layer['imagen'] = $layer['tipo'] === 'archivo' ? $images[$layer['archivo']] : $catalogImage;
                     $layer['original'] = $layer['tipo'] === 'archivo' ? $originales[$layer['archivo']] : $catalogImage;
                 }

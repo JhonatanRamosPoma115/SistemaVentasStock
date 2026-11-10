@@ -47,7 +47,7 @@ try {
     $connection->ping();
     $db = $connection->getDatabase();
     if ($db->getDatabaseName() !== $name || !preg_match('/^tienda_validacion_[a-f0-9]{12}_test$/', $name)) throw new RuntimeException('Destino de pruebas inválido');
-    foreach (['productos', 'pedidos', 'pedidos_personalizados', 'barrera', 'usuarios', 'movimientos_inventario', 'referencias_pago', 'poleras_vacias'] as $collection) { $db->createCollection($collection); $created = true; }
+    foreach (['productos', 'pedidos', 'pedidos_personalizados', 'barrera', 'usuarios', 'movimientos_inventario', 'poleras_vacias'] as $collection) { $db->createCollection($collection); $created = true; }
     $product = App\Models\Producto::create(['nombre_producto' => 'Prenda de prueba', 'precio' => 80.25, 'stock' => 2, 'talla' => 'M', 'color' => 'Negro', 'variantes' => [['id' => 'm', 'talla' => 'M', 'color' => 'Negro', 'stock' => 2, 'activo' => true]]]);
     $user = (new App\Models\User)->forceFill(['_id' => new MongoDB\BSON\ObjectId(), 'rol' => 'cliente', 'nombre' => 'Prueba', 'correo' => 'test@example.test']);
     $admin = (new App\Models\User)->forceFill(['_id' => new MongoDB\BSON\ObjectId(), 'rol' => 'admin']);
@@ -57,7 +57,7 @@ try {
     $cart = ['a' => ['producto_id' => (string) $product->id, 'variante_id' => 'm', 'cantidad' => 2, 'precio' => 80.25]];
     $order = $service->confirmar($cart, $user, ['telefono' => '70000000', 'direccion_entrega' => 'Prueba', 'metodo_pago' => 'contra_entrega'], $id);
     realCheck(App\Models\Producto::find($product->id)->stock === 2, 'Una solicitud no pagada no retiene stock');
-    app(App\Services\PagosTienda::class)->verificar($id,false,$admin,['monto'=>80.25,'referencia_pago'=>'PRUEBA/ANTICIPO','token_pago'=>(string) Illuminate\Support\Str::uuid()]);
+    app(App\Services\PagosTienda::class)->verificar($id,false,$admin,['monto'=>80.25,'token_pago'=>(string) Illuminate\Support\Str::uuid()]);
     $service->cambiarEstado($id,'confirmado',$admin);
     realCheck(App\Models\Producto::find($product->id)->stock === 0 && App\Models\Pedido::count() === 1, 'La confirmación pagada reserva stock transaccionalmente');
     $service->confirmar($cart, $user, [], $id);
@@ -90,7 +90,7 @@ try {
     (new App\Models\PoleraVacia(['nombre_producto'=>'Poleras vacías de prueba','stock'=>5,'variantes'=>[['id'=>'vacia-m','talla'=>'M','color'=>'Negro','stock'=>5,'activo'=>true]]]))->forceFill(['_id'=>new MongoDB\BSON\ObjectId(App\Models\PoleraVacia::INVENTARIO_ID)])->save();
     try { $quotes->cambiarEstado((string)$custom->id,'en_proceso',$admin); throw new RuntimeException('Producción sin pago'); }
     catch (Illuminate\Validation\ValidationException) { realCheck(App\Models\PoleraVacia::find(App\Models\PoleraVacia::INVENTARIO_ID)->stock === 5,'Sin pago completo no se inicia producción ni se consumen prendas vacías'); }
-    app(App\Services\PagosTienda::class)->verificar((string)$custom->id,true,$admin,['monto'=>150,'referencia_pago'=>'PRUEBA/PERSONALIZADO','token_pago'=>(string)Illuminate\Support\Str::uuid()]);
+    app(App\Services\PagosTienda::class)->verificar((string)$custom->id,true,$admin,['monto'=>150,'token_pago'=>(string)Illuminate\Support\Str::uuid()]);
     $quotes->cambiarEstado((string)$custom->id,'en_proceso',$admin);
     $quotes->cambiarEstado((string)$custom->id,'en_proceso',$admin);
     realCheck(App\Models\PoleraVacia::find(App\Models\PoleraVacia::INVENTARIO_ID)->stock === 3 && App\Models\Producto::find($product->id)->stock === 2,'Producción pagada descuenta una vez el inventario independiente de prendas vacías');

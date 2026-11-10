@@ -19,12 +19,6 @@ class AlmacenTienda
         return \App\Models\PoleraVacia::find(\App\Models\PoleraVacia::INVENTARIO_ID) ?? (new \App\Models\PoleraVacia(['nombre_producto'=>'Poleras sin diseño','variantes'=>[],'stock'=>0,'revision'=>0,'activo'=>true]))->forceFill(['_id'=>new ObjectId(\App\Models\PoleraVacia::INVENTARIO_ID)]);
     }
     public function guardarVacias(\App\Models\PoleraVacia $producto): void { $producto->save(); }
-    public function registrarReferenciaPago(string $referencia, string $pedidoId, bool $personalizado): void
-    {
-        $key=hash('sha256',mb_strtoupper(trim($referencia)));
-        if (\App\Models\ReferenciaPago::find($key)) throw \Illuminate\Validation\ValidationException::withMessages(['referencia_pago'=>'Esta referencia bancaria ya fue registrada.']);
-        (new \App\Models\ReferenciaPago)->forceFill(['_id'=>$key,'pedido_id'=>$pedidoId,'personalizado'=>$personalizado])->save();
-    }
     public function pedido(string $id): ?Pedido { return Pedido::find($id); }
     public function guardarPedido(Pedido $pedido): void { $pedido->save(); }
     public function crearPedido(array $attributes, string $id): Pedido

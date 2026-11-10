@@ -180,7 +180,6 @@
             </section><section data-custom-step="3">
 {{-- SECCIÓN 3: Contacto --}}
             <div class="field"><label for="custom-address">Dirección de entrega *</label><input id="custom-address" name="direccion_entrega" maxlength="300" value="{{ old('direccion_entrega') }}" required placeholder="Calle, zona y ciudad"></div>
-            <div class="field"><label for="custom-slot">Horario solicitado (La Paz) *</label><select id="custom-slot" name="franja_entrega" required>@foreach(config('tienda.franjas') as $franja)<option @selected(old('franja_entrega') === $franja)>{{ $franja }}</option>@endforeach</select><small>La tienda confirmará la fecha y la franja horaria acordadas.</small></div>
                 <x-delivery-time />
             <p class="checkout-note">Personalizados: pago del 100 % después de aceptar la cotización y antes de producir. Se coordina el QR por WhatsApp; solo la tienda puede verificar el ingreso.</p>
             <h3 style="font-family:var(--ff-head); font-size:1.4rem; margin-bottom:1.5rem; padding-bottom:.5rem; border-bottom:2px solid var(--gold);">

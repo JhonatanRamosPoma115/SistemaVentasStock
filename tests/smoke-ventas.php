@@ -21,15 +21,13 @@ class AlmacenMemoria extends AlmacenTienda
     public array $productos = [], $pedidos = [], $personalizados = [], $movimientos = [];
     public bool $fallarCreacion = false;
     public bool $fallarMovimiento = false;
-    public array $referencias=[];
     public ?App\Models\PoleraVacia $vacias=null;
     public function polerasVacias(): App\Models\PoleraVacia { return clone ($this->vacias ?? (new App\Models\PoleraVacia(['variantes'=>[],'stock'=>0]))->forceFill(['_id'=>App\Models\PoleraVacia::INVENTARIO_ID])); }
     public function guardarVacias(App\Models\PoleraVacia $producto): void { $this->vacias=clone $producto; }
-    public function registrarReferenciaPago(string $referencia,string $id,bool $personalizado): void { $key=mb_strtoupper(trim($referencia)); if(isset($this->referencias[$key])) throw ValidationException::withMessages(['referencia_pago'=>'Duplicada']); $this->referencias[$key]=$id; }
     public function transaccion(callable $operation): mixed {
         $copy = fn ($items) => array_map(fn ($item) => clone $item, $items);
-        $before = [$copy($this->productos), $copy($this->pedidos), $copy($this->personalizados), $this->movimientos, $this->referencias, $this->vacias ? clone $this->vacias : null];
-        try { return $operation(); } catch (Throwable $e) { [$this->productos, $this->pedidos, $this->personalizados, $this->movimientos, $this->referencias, $this->vacias] = $before; throw $e; }
+        $before = [$copy($this->productos), $copy($this->pedidos), $copy($this->personalizados), $this->movimientos, $this->vacias ? clone $this->vacias : null];
+        try { return $operation(); } catch (Throwable $e) { [$this->productos, $this->pedidos, $this->personalizados, $this->movimientos, $this->vacias] = $before; throw $e; }
     }
     public function producto(string $id): ?Producto { return isset($this->productos[$id]) ? clone $this->productos[$id] : null; }
     public function guardarProducto(Producto $producto): void { $this->productos[(string) $producto->id] = clone $producto; }
@@ -59,7 +57,7 @@ $order = $sales->confirmar($cart, $user, ['telefono' => '70000000', 'direccion_e
 checkSales($repo->productos[$productId]->stock === 3 && !$order->inventario_reservado && count($repo->movimientos) === 0,'Solicitud sin anticipo no bloquea stock');
 fails(fn()=>$sales->cambiarEstado($orderId,'confirmado',$admin),'No confirma sin anticipo del 50 %');
 $pagos=new App\Services\PagosTienda($repo);
-$pagos->verificar($orderId,false,$admin,['monto'=>'80.25','referencia_pago'=>'BANCO/TEST-01','token_pago'=>'00000000-0000-4000-8000-000000000001']);
+$pagos->verificar($orderId,false,$admin,['monto'=>'80.25','token_pago'=>'00000000-0000-4000-8000-000000000001']);
 $order=$sales->cambiarEstado($orderId,'confirmado',$admin);
 checkSales($repo->productos[$productId]->stock === 1 && $order->total === 160.5, 'Reserva sólo el stock de la variante elegida y calcula el total');
 checkSales($order->productos[0]['producto_id'] === $productId && $order->productos[0]['variante_id'] === 'm', 'Pedido conserva identificadores de inventario');
@@ -128,7 +126,7 @@ fails(fn () => $quotes->responder($customId, 1, true, $user), 'Una cotización r
 $quotes->responder($customId, 2, true, $user);
 checkSales($repo->personalizados[$customId]->estado === 'aprobado', 'El propietario acepta la cotización vigente');
 fails(fn()=>$quotes->cambiarEstado($customId,'en_proceso',$admin),'No produce un personalizado aceptado pero sin pago completo');
-$pagos->verificar($customId,true,$admin,['monto'=>'260','referencia_pago'=>'BANCO/TEST-CUSTOM-01','token_pago'=>'00000000-0000-4000-8000-000000000002']);
+$pagos->verificar($customId,true,$admin,['monto'=>'260','token_pago'=>'00000000-0000-4000-8000-000000000002']);
 $quotes->cambiarEstado($customId, 'en_proceso', $admin); $quotes->cambiarEstado($customId, 'entregado', $admin);
 checkSales(count($repo->personalizados[$customId]->historial) === 6 && $repo->vacias->stock === 17, 'Producción pagada descuenta poleras vacías y conserva el historial');
 fails(fn () => $sales->cambiarEstado($orderId, 'inventado', $admin), 'Rechaza estados no definidos');
@@ -175,7 +173,7 @@ checkSales($ventaSegura->confirmar($carritoSeguro,$user,[],'00000000000000000000
 checkSales($seguro->productos[$productId]->stock === 3,'Varias solicitudes no pagadas no retienen prendas');
 $carritoGrande=$carritoSeguro; $carritoGrande['a']['cantidad']=20;
 fails(fn()=>$ventaSegura->confirmar($carritoGrande,$other,[],'000000000000000000000093'),'Rechaza solicitudes masivas superiores al límite de prendas');
-$datosPago=['monto'=>'40.13','referencia_pago'=>'BANCO/UNICO-01','token_pago'=>'00000000-0000-4000-8000-000000000090'];
+$datosPago=['monto'=>'40.13','token_pago'=>'00000000-0000-4000-8000-000000000090'];
 denied(fn()=>$pagoSeguro->verificar($idSeguro,false,$user,$datosPago),403,'El cliente no puede marcar su pago como verificado');
 fails(fn()=>$pagoSeguro->verificar($idSeguro,false,$admin,array_merge($datosPago,['monto'=>'81'])),'Rechaza ingresos que exceden el saldo');
 fails(fn()=>$pagoSeguro->verificar($idSeguro,false,$admin,array_merge($datosPago,['monto'=>'0'])),'Rechaza pagos de importe cero');
@@ -183,12 +181,11 @@ checkSales(App\Services\PagosTienda::resumen($seguro->pedidos[$idSeguro])['minim
 $pagoSeguro->verificar($idSeguro,false,$admin,$datosPago);
 $pagoSeguro->verificar($idSeguro,false,$admin,$datosPago);
 checkSales(count($seguro->pedidos[$idSeguro]->pagos) === 1 && $seguro->pedidos[$idSeguro]->monto_pagado_centavos === 4013,'Repetir el registro con el mismo token no duplica dinero');
-fails(fn()=>$pagoSeguro->verificar('000000000000000000000091',false,$admin,array_merge($datosPago,['token_pago'=>'00000000-0000-4000-8000-000000000091'])),'Una referencia bancaria no puede reutilizarse en otro pedido');
 $ventaSegura->cambiarEstado($idSeguro,'confirmado',$admin);
 checkSales($seguro->productos[$productId]->stock === 2 && $seguro->pedidos[$idSeguro]->inventario_reservado,'El anticipo permite confirmar y recién entonces reservar la variante');
 $ventaSegura->cambiarEstado($idSeguro,'en_preparacion',$admin);
 fails(fn()=>$ventaSegura->cambiarEstado($idSeguro,'entregado',$admin),'No finaliza la entrega con saldo pendiente');
-$pagoSeguro->verificar($idSeguro,false,$admin,['monto'=>'40.12','referencia_pago'=>'BANCO/SALDO-01','token_pago'=>'00000000-0000-4000-8000-000000000092']);
+$pagoSeguro->verificar($idSeguro,false,$admin,['monto'=>'40.12','token_pago'=>'00000000-0000-4000-8000-000000000092']);
 $ventaSegura->cambiarEstado($idSeguro,'entregado',$admin);
 checkSales($seguro->pedidos[$idSeguro]->estado_pago === 'pagado','Saldo completo habilita finalizar la entrega');
 fails(fn()=>App\Services\PrendasVacias::comprobar($repo->vacias,'Negro',['M'=>18]),'No acepta más prendas vacías que las disponibles');

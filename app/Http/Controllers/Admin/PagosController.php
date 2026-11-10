@@ -8,24 +8,23 @@ class PagosController extends Controller
 {
     public function entrega(Request $request, string $tipo, string $id, \App\Services\AlmacenTienda $almacen)
     {
-        $data=$request->validate(['fecha_entrega'=>'required|date_format:Y-m-d|after_or_equal:today','hora_entrega'=>['required','date_format:H:i',new \App\Rules\HoraEnFranja($request->input('franja_entrega'))], 'franja_entrega'=>['required',\Illuminate\Validation\Rule::in(config('tienda.franjas'))]]);
-        $almacen->transaccion(function () use ($data,$tipo,$id,$almacen,$request) {
+        $almacen->transaccion(function () use ($tipo,$id,$almacen,$request) {
             $pedido=$tipo === 'personalizado' ? $almacen->personalizado($id) : $almacen->pedido($id); abort_unless($pedido,404);
             abort_if(in_array($pedido->estado,['cancelado','rechazado','entregado'],true),422);
-            $pedido->fecha_entrega=$data['fecha_entrega']; $pedido->franja_entrega=$data['franja_entrega']; $pedido->hora_entrega=$data['hora_entrega']; $pedido->entrega_confirmada=true;
-            $pedido->historial=array_merge($pedido->historial ?? [],[\App\Services\EstadosPedido::historial($pedido->estado,(string)$request->user()->id,'Entrega acordada: '.$data['fecha_entrega'].' '.$data['hora_entrega'])]);
+            if ($pedido->entrega_confirmada) return;
+            $fecha = $pedido->fecha_entrega ?? $pedido->para_cuando;
+            $hora = $pedido->hora_entrega ?? $pedido->franja_entrega;
+            abort_unless($fecha && $hora, 422, 'El pedido no tiene fecha y hora solicitadas.');
+            $pedido->entrega_confirmada = true;
+            $pedido->historial=array_merge($pedido->historial ?? [],[\App\Services\EstadosPedido::historial($pedido->estado,(string)$request->user()->id,'Entrega acordada: '.$fecha.' '.$hora)]);
             $tipo === 'personalizado' ? $almacen->guardarPersonalizado($pedido) : $almacen->guardarPedido($pedido);
         });
         return back()->with('success','Fecha y horario de entrega confirmados.');
     }
     public function store(Request $request, string $tipo, string $id, PagosTienda $pagos)
     {
-        $datos=$request->validate(['monto'=>'required|numeric|min:0.01|max:9999999|decimal:0,2','referencia_pago'=>'required|string|min:4|max:100','token_pago'=>'required|uuid','verificado'=>'accepted']);
-        try { $pagos->verificar($id,$tipo === 'personalizado',$request->user(),$datos); }
-        catch (\MongoDB\Driver\Exception\BulkWriteException $exception) {
-            if ($exception->getCode() !== 11000) throw $exception;
-            throw \Illuminate\Validation\ValidationException::withMessages(['referencia_pago'=>'La referencia bancaria ya se registró. Recarga antes de continuar.']);
-        }
+        $datos=$request->validate(['monto'=>'required|numeric|min:0.01|max:9999999|decimal:0,2','token_pago'=>'required|uuid','verificado'=>'accepted']);
+        $pagos->verificar($id,$tipo === 'personalizado',$request->user(),$datos);
         return back()->with('success','Importe verificado y registrado. El sistema no realiza cobros ni devoluciones bancarias.');
     }
 }

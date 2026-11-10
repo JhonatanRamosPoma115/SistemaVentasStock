@@ -35,12 +35,11 @@ class PagosTienda
             $pagos = $pedido->pagos ?? [];
             if (collect($pagos)->contains(fn ($p) => $p['token'] === $datos['token_pago'])) return;
             if ($cantidad <= 0 || $cantidad > $r['saldo']) throw ValidationException::withMessages(['monto'=>'El importe debe ser positivo y no superar el saldo pendiente.']);
-            $this->almacen->registrarReferenciaPago($datos['referencia_pago'],$id,$personalizado);
-            $pagos[] = ['token'=>$datos['token_pago'],'centavos'=>$cantidad,'referencia'=>$datos['referencia_pago'],'usuario_id'=>(string)$admin->id,'fecha'=>now()->toDateTimeString()];
+            $pagos[] = ['token'=>$datos['token_pago'],'centavos'=>$cantidad,'usuario_id'=>(string)$admin->id,'fecha'=>now()->toDateTimeString()];
             $pedido->pagos = $pagos;
             $pedido->monto_pagado_centavos = $r['pagado']+$cantidad;
             $pedido->estado_pago = $pedido->monto_pagado_centavos === $r['total'] ? 'pagado' : 'parcial';
-            $pedido->historial = array_merge($pedido->historial ?? [],[EstadosPedido::historial($pedido->estado,(string)$admin->id,'Pago verificado: Bs. '.number_format($cantidad/100,2).'. Ref.: '.$datos['referencia_pago'])]);
+            $pedido->historial = array_merge($pedido->historial ?? [],[EstadosPedido::historial($pedido->estado,(string)$admin->id,'Pago verificado: Bs. '.number_format($cantidad/100,2))]);
             $personalizado ? $this->almacen->guardarPersonalizado($pedido) : $this->almacen->guardarPedido($pedido);
         });
     }
